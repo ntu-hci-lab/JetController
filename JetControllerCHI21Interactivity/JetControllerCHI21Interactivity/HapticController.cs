@@ -1,4 +1,4 @@
-﻿using DualSense2Xbox;
+using DualSense2Xbox;
 using JetControllerCHI21Interactivity.JetController;
 using System;
 using System.Collections.Generic;
@@ -48,6 +48,7 @@ namespace JetControllerCHI21Interactivity
 
         volatile int JetControllerOnDuration = 0,
             JetControllerOffDuration = 0;
+        volatile bool IsHalfLifeShooting = false;
         double JetControllerForceFeedback = 0;
         Thread JetControllerControlThread;
         void GameCommunicationSocketHandler(object _socket)
@@ -99,6 +100,7 @@ namespace JetControllerCHI21Interactivity
             dualSense.SetLeftAdaptiveTrigger(DualSense_Base.NormalTrigger);
             dualSense.SetRightAdaptiveTrigger(DualSense_Base.NormalTrigger);
             JetController_Ctrl?.SendValveOnOff(false);
+            IsHalfLifeShooting = false;
         }
         void HalfLifeHandler(byte b0, byte b1)
         {
@@ -122,6 +124,7 @@ namespace JetControllerCHI21Interactivity
                     JetControllerForceFeedback = 3;
                     JetControllerOnDuration = 50;
                     JetControllerOffDuration = 50;
+                    IsHalfLifeShooting = true;
                     JetControllerControlThread.Interrupt();
                     break;
             }
@@ -143,6 +146,12 @@ namespace JetControllerCHI21Interactivity
                         Thread.Sleep(1);
                         continue;
                     }
+                    if (IsHalfLifeNow && !IsHalfLifeShooting)
+                    {
+                        JetController_Ctrl?.SendValveOnOff(false);
+                        Thread.Sleep(1);
+                        continue;
+                    }
                     JetController_Ctrl?.ApplyForce((uint)JetControllerOnDuration, JetControllerForceFeedback);
                     Thread.Sleep(JetControllerOnDuration);
                     JetController_Ctrl?.SendValveOnOff(false);
@@ -150,8 +159,9 @@ namespace JetControllerCHI21Interactivity
                     if (CurrentGroundSurface == GroundSurface.Studs)
                         CurrentGroundSurface = GroundSurface.None;
                 }
-                catch (ThreadInterruptedException)
+                catch (ThreadInterruptedException e)
                 {
+                    var err = e.ToString();
                     JetController_Ctrl?.SendValveOnOff(false);
                     continue;
                 }
@@ -160,7 +170,7 @@ namespace JetControllerCHI21Interactivity
         void DrivingVibrationControl()
         {
             while (true)
-            {
+               {
                 try
                 {
                     if (IsHalfLifeNow || CurrentFeedbackApproach != FeedbackApproach.Vibration)
@@ -264,7 +274,9 @@ namespace JetControllerCHI21Interactivity
                         DrivingVibrationThread.Interrupt();
                     break;
                 case FeedbackApproach.JetController:
-                    JetControllerControlThread.Interrupt();
+                    CurrentGroundSurface = TextureID;
+                    if (CurrentGroundSurface > TextureID)
+                        JetControllerControlThread.Interrupt();
                     break;
                 case FeedbackApproach.NoFeedback:
                     ResetAllHapticTechniques();
