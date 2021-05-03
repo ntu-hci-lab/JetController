@@ -45,7 +45,13 @@ namespace JetControllerCHI21Interactivity
         {
             var HL2_List = Process.GetProcessesByName("hl2");
             foreach (var p in HL2_List)
-                p.Kill();
+                try
+                {
+                    p.Kill();
+                }catch
+                {
+
+                }
         }
         private bool CheckHalfLIfe2AutoExec()
         {
