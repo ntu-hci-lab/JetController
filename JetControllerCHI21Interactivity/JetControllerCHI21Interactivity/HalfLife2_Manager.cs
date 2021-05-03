@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -119,6 +119,8 @@ namespace JetControllerCHI21Interactivity
         }
         public bool RunHalfLife2()
         {
+            while (IsHalfLife2Running())
+                    KillHalfLife2();
             StartGame(220, "-console -vconsole -autoexec");
             for (int i = 0; i < 40; ++i)
             {
