@@ -33,7 +33,9 @@ namespace JetControllerCHI21Interactivity
         private static volatile bool IsSteamGameSearchEnded = false;
         public static string GetSteamFolder()
         {
-            if (IntPtr.Size == 4)
+            if (_SteamLocation != null)
+                return _SteamLocation;
+            else if (IntPtr.Size == 4)
                 return (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Valve\Steam", "InstallPath", null);
             else if (IntPtr.Size == 8)
                 return (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Valve\Steam", "InstallPath", null);
@@ -48,14 +50,17 @@ namespace JetControllerCHI21Interactivity
             _Steam_GameID_Path_Table = new Dictionary<int, string>();
             string[] All_Lists = File.ReadAllLines(_SteamLocation + @"\steamapps\libraryfolders.vdf");
 
-            List<string> AllPossiblePath = new List<string>(All_Lists.Length);
+            List<string> AllPossiblePath = new List<string>();
             AllPossiblePath.Add(_SteamLocation);
-
-            for (int i = All_Lists.Length - 1; i >= 0; --i)
+            
+            foreach (var JSON_Text in All_Lists)
             {
-                string Str = All_Lists[i].Replace("\"", "").Trim().Replace("\t\t", "\t");
-                string[] KeyValue = Str.Split('\t');
-
+                var PureTextContent = JSON_Text.Replace("\"", "").Trim().Replace("\t\t", "\t").Replace("\\\\", "\\");
+                if (PureTextContent.Length == 0)
+                    continue;
+                string[] KeyValue = PureTextContent.Split('\t');
+                if (KeyValue.Length < 2)
+                    continue;
                 if (int.TryParse(KeyValue[0], out _))
                     AllPossiblePath.Add(KeyValue[1]);
             }
@@ -72,9 +77,9 @@ namespace JetControllerCHI21Interactivity
                     int GameID = int.Parse(GameID_Str);
                     if (_Steam_GameID_Path_Table.ContainsKey(GameID))
                     {
-                        var CurrentTarget = File.GetLastWriteTime(PossiblePath + $"\\steamapps\\appmanifest_{GameID}.acf");
-                        var PreviousTarget = File.GetLastWriteTime(_Steam_GameID_Path_Table[GameID] + $"\\appmanifest_{GameID}.acf");
-                        if (CurrentTarget > PreviousTarget)
+                        var CurrentTargetLastWriteTime = File.GetLastWriteTime(PossiblePath + $"\\steamapps\\appmanifest_{GameID}.acf");
+                        var PreviousTargetLastWriteTime = File.GetLastWriteTime(_Steam_GameID_Path_Table[GameID] + $"\\appmanifest_{GameID}.acf");
+                        if (CurrentTargetLastWriteTime > PreviousTargetLastWriteTime)
                             _Steam_GameID_Path_Table[GameID] = PossiblePath + "\\steamapps";
                     }
                     else
