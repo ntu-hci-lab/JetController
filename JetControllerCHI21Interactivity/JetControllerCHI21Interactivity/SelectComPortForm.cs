@@ -1,4 +1,4 @@
-﻿using JetControllerCHI21Interactivity.JetController;
+using JetControllerCHI21Interactivity.JetController;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -64,6 +64,7 @@ namespace JetControllerCHI21Interactivity
                 serialPort.Dispose();
                 COM_Name = comboBox_ComPortList.Text;
                 IsCloseFormDirectly = true;
+                this.Close();
             }
             catch
             {
