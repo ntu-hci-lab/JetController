@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -70,7 +70,17 @@ namespace JetControllerCHI21Interactivity
                     int GameID_Str_Length = GameID_Str_EndIndex - GameID_Str_StartIndex;
                     string GameID_Str = GameManifestLocation.Substring(GameID_Str_StartIndex, GameID_Str_Length);
                     int GameID = int.Parse(GameID_Str);
-                    _Steam_GameID_Path_Table.Add(GameID, PossiblePath + "\\steamapps");
+                    if (_Steam_GameID_Path_Table.ContainsKey(GameID))
+                    {
+                        var CurrentTarget = File.GetLastWriteTime(PossiblePath + $"\\steamapps\\appmanifest_{GameID}.acf");
+                        var PreviousTarget = File.GetLastWriteTime(_Steam_GameID_Path_Table[GameID] + $"\\appmanifest_{GameID}.acf");
+                        if (CurrentTarget > PreviousTarget)
+                            _Steam_GameID_Path_Table[GameID] = PossiblePath + "\\steamapps";
+                    }
+                    else
+                    {
+                        _Steam_GameID_Path_Table.Add(GameID, PossiblePath + "\\steamapps");
+                    }
                 }
             }
             IsSteamGameSearchEnded = true;
