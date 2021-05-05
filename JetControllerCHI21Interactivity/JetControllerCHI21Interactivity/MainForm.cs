@@ -1,4 +1,4 @@
-﻿using Device.Net;
+using Device.Net;
 using DualSense2Xbox;
 using Hid.Net.Windows;
 using JetControllerCHI21Interactivity.JetController;
@@ -95,6 +95,22 @@ namespace JetControllerCHI21Interactivity
             foreach (var FileName in LocalFileNames)
                 File.Copy(FileName, Path + FileName);
         }
+        private void DeleteOtherSavedFile(HalfLife2_Manager halfLife2_Manager)
+        {
+            var Path = halfLife2_Manager.HalfLife2Path + @"\hl2\save\";
+            var FileNames = Directory.GetFiles(Path);
+            var ReservedFiles = new string[] { "d1_canals_01.hl1", "d1_canals_01.hl2", "d1_canals_01.hl3", "half-life-000.sav", "half-life-000.tga" };
+            foreach (var FileName in FileNames)
+            {
+                bool IsContains = false;
+                foreach (var ReservedFile in ReservedFiles)
+                {
+                    IsContains |= FileName.Contains(ReservedFile);
+                }
+                if (!IsContains)
+                    File.Delete(FileName);
+            }
+        }
         [STAThread]
         private void MainForm_Load(object sender, EventArgs e)
         {
@@ -166,8 +182,11 @@ namespace JetControllerCHI21Interactivity
             HapticController.IsHalfLifeNow = true;
             new Thread(() => 
             {
+                int Counter = 0;
                 while (true)
                 {
+                    if (++Counter < 60)
+                        DeleteOtherSavedFile(HL2_Manager);
                     Thread.Sleep(1000);
                     if (Process.GetProcessesByName("hl2").Length == 0)
                         Application.Exit();
