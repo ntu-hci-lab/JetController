@@ -169,12 +169,6 @@ namespace JetControllerCHI21Interactivity
                     Process.Start("https://store.steampowered.com/app/220/HalfLife_2/");
                 return;
             }
-            RewriteSaveFile(HL2_Manager);
-            if (!HL2_Manager.RunHalfLife2())
-            {
-                MessageBox.Show("Cannot launch Half-Life 2 properly!\nCheck your Steam configuration!\nPerhaps you are not login!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
             MessageBox.Show("Since we only parse the firing signal from vibration channel, the latencies of Adaptive Trigger and JetController might be noticable.\nThis is the limitation of parsing haptic events from commercial games.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
             groupBox_SelectHapticTechnique.Enabled = true;
             groupBox_GameSelect.Enabled = false;
@@ -192,6 +186,12 @@ namespace JetControllerCHI21Interactivity
                         Application.Exit();
                 }
             }).Start();
+            RewriteSaveFile(HL2_Manager);
+            if (!HL2_Manager.RunHalfLife2())
+            {
+                MessageBox.Show("Cannot launch Half-Life 2 properly!\nCheck your Steam configuration!\nPerhaps you are not login!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
         }
 
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
