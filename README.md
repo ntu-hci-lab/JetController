@@ -19,11 +19,15 @@
 ```
 
 # Paper Links
+
 CHI'21 Full Paper
 https://doi.org/10.1145/3411764.3445549
 
-CHI'21 Interactivity (Does not utilize the program) 
+CHI'21 Interactivity
 https://doi.org/10.1145/3411763.3451542
 
 Website of JetController
 https://jetcontroller.org
+
+Repository of Half-Life: Alyx Event Detector
+https://github.com/Solla/HalfLifeAlyxEventDetector
