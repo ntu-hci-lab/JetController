@@ -92,8 +92,14 @@ namespace JetControllerCHI21Interactivity
             foreach (var FileName in FileNames)
                 File.Delete(FileName);
             var LocalFileNames = new string[] { "d1_canals_01.hl1", "d1_canals_01.hl2", "d1_canals_01.hl3", "half-life-000.sav", "half-life-000.tga" };
-            foreach (var FileName in LocalFileNames)
-                File.Copy(FileName, Path + FileName);
+            try
+            {
+                foreach (var FileName in LocalFileNames)
+                    File.Copy(FileName, Path + FileName);
+            }catch(Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
         }
         private void DeleteOtherSavedFile(HalfLife2_Manager halfLife2_Manager)
         {
@@ -174,24 +180,26 @@ namespace JetControllerCHI21Interactivity
             groupBox_GameSelect.Enabled = false;
             groupBox_GameSelect.Text = "Select Experience (Game). Close the application to re-select your experience.";
             HapticController.IsHalfLifeNow = true;
-            new Thread(() => 
-            {
-                int Counter = 0;
-                while (true)
-                {
-                    if (++Counter < 60)
-                        DeleteOtherSavedFile(HL2_Manager);
-                    Thread.Sleep(1000);
-                    if (Process.GetProcessesByName("hl2").Length == 0)
-                        Application.Exit();
-                }
-            }).Start();
             RewriteSaveFile(HL2_Manager);
             if (!HL2_Manager.RunHalfLife2())
             {
                 MessageBox.Show("Cannot launch Half-Life 2 properly!\nCheck your Steam configuration!\nPerhaps you are not login!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+            new Thread(() =>
+            {
+                int Counter = 0;
+                bool IsHalfLifeAlreadyStarted = false;
+                while (true)
+                {
+                    if (++Counter < 60)
+                        DeleteOtherSavedFile(HL2_Manager);
+                    IsHalfLifeAlreadyStarted |= Process.GetProcessesByName("hl2").Length != 0;
+                    Thread.Sleep(1000);
+                    if (IsHalfLifeAlreadyStarted && Process.GetProcessesByName("hl2").Length == 0)  //Check is Half-Life 2 still running?
+                        Application.Exit();
+                }
+            }).Start();
         }
 
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
