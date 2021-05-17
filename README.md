@@ -52,16 +52,20 @@
 
 # Paper Links
 
-CHI'21 Full Paper
+## CHI'21 Full Paper
+
 [Author-Izer Service](https://dl.acm.org/doi/10.1145/3411764.3445549?cid=99659702103)
+
 (You can obtain the camera-ready version from the ACM Digital Library at no charge via Author-Izer Service Link)
 
-CHI'21 Interactivity
+## CHI'21 Interactivity
+
 [Author-Izer Service](https://dl.acm.org/doi/10.1145/3411763.3451542?cid=99659702103)
+
 (You can obtain the camera-ready version from the ACM Digital Library at no charge via Author-Izer Service Link)
 
-Website of JetController
+## Website of JetController
 https://jetcontroller.org
 
-Repository of Half-Life: Alyx Event Detector
+## Repository of Half-Life: Alyx Event Detector
 https://github.com/Solla/HalfLifeAlyxEventDetector
